@@ -1,0 +1,97 @@
+@if (authService.estaLogueado()) {
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container-fluid">
+
+      <!-- Brand -->
+      <a class="navbar-brand fw-bold" routerLink="/dashboard">
+        <i class="bi bi-airplane-fill me-2"></i>Horizontes
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav me-auto">
+
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/dashboard">
+              <i class="bi bi-house me-1"></i>Inicio
+            </a>
+          </li>
+
+          <!-- Atención al Cliente (tipo 1 y 3) -->
+          @if (tipo === 1 || tipo === 3) {
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-people me-1"></i>Clientes
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" routerLink="/clientes">
+                  <i class="bi bi-person me-2"></i>Gestión de Clientes</a></li>
+                <li><a class="dropdown-item" routerLink="/reservaciones">
+                  <i class="bi bi-calendar-check me-2"></i>Reservaciones</a></li>
+                <li><a class="dropdown-item" routerLink="/pagos">
+                  <i class="bi bi-cash me-2"></i>Pagos</a></li>
+                <li><a class="dropdown-item" routerLink="/cancelaciones">
+                  <i class="bi bi-x-circle me-2"></i>Cancelaciones</a></li>
+              </ul>
+            </li>
+          }
+
+          <!-- Operaciones (tipo 2 y 3) -->
+          @if (tipo === 2 || tipo === 3) {
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-map me-1"></i>Operaciones
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" routerLink="/destinos">
+                  <i class="bi bi-geo-alt me-2"></i>Destinos</a></li>
+                <li><a class="dropdown-item" routerLink="/paquetes">
+                  <i class="bi bi-briefcase me-2"></i>Paquetes</a></li>
+                <li><a class="dropdown-item" routerLink="/proveedores">
+                  <i class="bi bi-building me-2"></i>Proveedores</a></li>
+              </ul>
+            </li>
+          }
+
+          <!-- Administración (solo tipo 3) -->
+          @if (tipo === 3) {
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-gear me-1"></i>Administración
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" routerLink="/usuarios">
+                  <i class="bi bi-person-gear me-2"></i>Usuarios</a></li>
+                <li><a class="dropdown-item" routerLink="/reportes">
+                  <i class="bi bi-bar-chart me-2"></i>Reportes</a></li>
+                <li><a class="dropdown-item" routerLink="/carga-datos">
+                  <i class="bi bi-upload me-2"></i>Carga de Datos</a></li>
+              </ul>
+            </li>
+          }
+
+        </ul>
+
+        <!-- Usuario y logout -->
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i>
+              {{ usuario?.nombre }} 
+              <span class="badge bg-secondary ms-1">{{ rolNombre }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item text-danger" (click)="logout()" style="cursor:pointer">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+            </ul>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+  </nav>
+}

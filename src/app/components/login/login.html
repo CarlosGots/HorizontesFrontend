@@ -1,0 +1,50 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center"
+     style="background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)">
+
+  <div class="card shadow-lg" style="width: 400px; border-radius: 16px; border: none;">
+    <div class="card-body p-5">
+
+      <!-- Logo / Título -->
+      <div class="text-center mb-4">
+        <i class="bi bi-airplane-fill text-primary" style="font-size: 3rem;"></i>
+        <h3 class="fw-bold mt-2">Horizontes sin Límites</h3>
+        <p class="text-muted">Agencia de Viajes</p>
+      </div>
+
+      <!-- Error -->
+      @if (error) {
+        <div class="alert alert-danger py-2">
+          <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+        </div>
+      }
+
+      <!-- Formulario -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Usuario</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person"></i></span>
+          <input type="text" class="form-control" placeholder="Nombre de usuario"
+                 [(ngModel)]="nombre" (keyup.enter)="login()">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Contraseña</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock"></i></span>
+          <input type="password" class="form-control" placeholder="Contraseña"
+                 [(ngModel)]="password" (keyup.enter)="login()">
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-100 py-2 fw-semibold"
+              (click)="login()" [disabled]="cargando">
+        @if (cargando) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        Ingresar
+      </button>
+
+    </div>
+  </div>
+</div>
