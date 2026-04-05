@@ -1,1 +1,149 @@
-<p>pagos works!</p>
+<div class="container-fluid py-4 px-4">
+
+  <div class="mb-4">
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-cash-stack text-warning me-2"></i>Pagos
+    </h2>
+    <p class="text-muted mb-0">Registrá pagos sobre una reservación</p>
+  </div>
+
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible">
+      <i class="bi bi-check-circle me-2"></i>{{ mensaje }}
+      <button type="button" class="btn-close" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Buscar reservación -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white fw-semibold">
+      <i class="bi bi-search me-2"></i>Buscar Reservación
+    </div>
+    <div class="card-body">
+      <div class="input-group" style="max-width: 400px;">
+        <input type="text" class="form-control" [(ngModel)]="busquedaNumero"
+               placeholder="Ej: RES-00001" (keyup.enter)="buscarReservacion()">
+        <button class="btn btn-primary" (click)="buscarReservacion()">
+          <i class="bi bi-search"></i> Buscar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info reservación -->
+  @if (reservacion) {
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-info-circle me-2"></i>Reservación {{ reservacion.numero }}
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <small class="text-muted">Paquete</small>
+            <p class="fw-semibold mb-0">{{ reservacion.paqueteNombre }}</p>
+          </div>
+          <div class="col-md-3">
+            <small class="text-muted">Fecha de viaje</small>
+            <p class="fw-semibold mb-0">{{ reservacion.fechaViaje }}</p>
+          </div>
+          <div class="col-md-3">
+            <small class="text-muted">Costo total</small>
+            <p class="fw-semibold mb-0">Q. {{ reservacion.costoTotal | number:'1.2-2' }}</p>
+          </div>
+          <div class="col-md-3">
+            <small class="text-muted">Estado</small><br>
+            <span [class]="'badge bg-' + getColorEstado(reservacion.estado)">
+              {{ reservacion.estado }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Resumen pagos -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="p-3 bg-success bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Total pagado</small>
+              <strong class="text-success fs-5">Q. {{ getTotalPagado() | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-warning bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Pendiente</small>
+              <strong class="text-warning fs-5">Q. {{ getPendiente() | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-primary bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Costo total</small>
+              <strong class="text-primary fs-5">Q. {{ reservacion.costoTotal | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registrar pago -->
+        @if (reservacion.estado === 'PENDIENTE') {
+          <h6 class="fw-semibold mb-3">Registrar pago</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Monto (Q) *</label>
+              <input type="number" class="form-control" [(ngModel)]="form.monto"
+                     [max]="getPendiente()" min="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Método de pago *</label>
+              <select class="form-select" [(ngModel)]="form.metodo">
+                @for (m of metodos; track m.id) {
+                  <option [value]="m.id">{{ m.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Fecha *</label>
+              <input type="date" class="form-control" [(ngModel)]="form.fecha">
+            </div>
+          </div>
+          <button class="btn btn-success mt-3" (click)="registrarPago()" [disabled]="cargando">
+            @if (cargando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <i class="bi bi-cash me-1"></i>Registrar Pago
+          </button>
+        }
+
+        @if (reservacion.estado === 'CONFIRMADA') {
+          <div class="alert alert-success py-2">
+            <i class="bi bi-check-circle me-2"></i>Esta reservación ya está completamente pagada.
+          </div>
+        }
+
+        <!-- Historial de pagos -->
+        @if (pagos.length > 0) {
+          <h6 class="fw-semibold mt-4 mb-2">Historial de pagos</h6>
+          <table class="table table-sm table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of pagos; track p.id) {
+                <tr>
+                  <td>{{ p.fecha }}</td>
+                  <td>{{ getMetodoNombre(p.metodo) }}</td>
+                  <td>Q. {{ p.monto | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+
+</div>

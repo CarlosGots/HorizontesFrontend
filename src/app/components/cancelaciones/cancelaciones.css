@@ -1,0 +1,7 @@
+.card {
+    transition: box-shadow 0.2s ease;
+}
+
+.border-start {
+    transition: border-color 0.2s ease;
+}

@@ -1,1 +1,162 @@
-<p>reportes works!</p>
+<div class="container-fluid py-4 px-4">
+
+  <div class="mb-4">
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-bar-chart-fill text-success me-2"></i>Reportes Financieros
+    </h2>
+    <p class="text-muted mb-0">Consultá y exportá reportes del sistema</p>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Filtros de fecha -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white fw-semibold">
+      <i class="bi bi-funnel me-2"></i>Filtros
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Fecha inicio</label>
+          <input type="date" class="form-control" [(ngModel)]="filtro.inicio">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Fecha fin</label>
+          <input type="date" class="form-control" [(ngModel)]="filtro.fin">
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Dejá las fechas vacías para ver todos los registros
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjetas de reportes -->
+  <div class="row g-3 mb-4">
+    @for (r of reportes; track r.id) {
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm reporte-card" (click)="generarReporte(r.id)"
+             [class.border-primary]="reporteActual === r.id">
+          <div class="card-body text-center py-4">
+            <i [class]="'bi ' + r.icono + ' text-' + r.color"
+               style="font-size: 2rem;"></i>
+            <h6 class="mt-2 fw-semibold">{{ r.nombre }}</h6>
+            <small class="text-muted">Clic para generar</small>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Resultados -->
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2 text-muted">Generando reporte...</p>
+    </div>
+  }
+
+  @if (!cargando && datos.length > 0) {
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">
+          <i class="bi bi-table me-2"></i>
+          {{ reporteActual === 'ventas' ? 'Reporte de Ventas' : 'Reporte de Cancelaciones' }}
+          — {{ datos.length }} registros
+        </span>
+        <button class="btn btn-sm btn-outline-danger" (click)="exportarPdf()">
+          <i class="bi bi-file-pdf me-1"></i>Exportar PDF
+        </button>
+      </div>
+      <div class="card-body p-0">
+
+        <!-- Tabla ventas -->
+        @if (reporteActual === 'ventas') {
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Número</th>
+                <th>Paquete</th>
+                <th>Agente</th>
+                <th>Fecha viaje</th>
+                <th>Monto</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos; track r.id) {
+                <tr>
+                  <td><span class="badge bg-secondary">{{ r.numero }}</span></td>
+                  <td>{{ r.paqueteNombre }}</td>
+                  <td>{{ r.agenteNombre }}</td>
+                  <td>{{ r.fechaViaje }}</td>
+                  <td>Q. {{ r.costoTotal | number:'1.2-2' }}</td>
+                  <td>
+                    <span [class]="'badge bg-' + getColorEstado(r.estado)">{{ r.estado }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="4" class="text-end fw-bold">Total:</td>
+                <td colspan="2" class="fw-bold text-success">
+                  Q. {{ getTotalVentas() | number:'1.2-2' }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        }
+
+        <!-- Tabla cancelaciones -->
+        @if (reporteActual === 'cancelaciones') {
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Reservación</th>
+                <th>Fecha cancelación</th>
+                <th>% Reembolso</th>
+                <th>Monto reembolsado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of datos; track c.id) {
+                <tr>
+                  <td><span class="badge bg-secondary">{{ c.reservacionNumero }}</span></td>
+                  <td>{{ c.fechaCancelacion }}</td>
+                  <td>{{ c.porcentajeReembolso }}%</td>
+                  <td>Q. {{ c.montoReembolso | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="3" class="text-end fw-bold">Total reembolsado:</td>
+                <td class="fw-bold text-danger">
+                  Q. {{ getTotalReembolsos() | number:'1.2-2' }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        }
+
+      </div>
+    </div>
+  }
+
+  @if (!cargando && datos.length === 0 && reporteActual) {
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+      <p class="mt-2">No hay datos para el período seleccionado</p>
+    </div>
+  }
+
+</div>

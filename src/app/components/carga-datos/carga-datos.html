@@ -1,1 +1,121 @@
-<p>carga-datos works!</p>
+<div class="container-fluid py-4 px-4">
+
+  <div class="mb-4">
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-upload text-warning me-2"></i>Carga de Datos
+    </h2>
+    <p class="text-muted mb-0">Cargá el archivo inicial de datos del sistema</p>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Instrucciones -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white fw-semibold">
+      <i class="bi bi-info-circle me-2"></i>Formato del archivo
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-2">El archivo debe ser <strong>.txt</strong> con las siguientes instrucciones:</p>
+      <div class="row g-2">
+        @for (inst of instrucciones; track inst.tipo) {
+          <div class="col-md-4">
+            <div class="p-2 bg-light rounded">
+              <code class="text-primary">{{ inst.tipo }}</code>
+              <small class="text-muted d-block">{{ inst.desc }}</small>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Subir archivo -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white fw-semibold">
+      <i class="bi bi-file-earmark-text me-2"></i>Seleccionar archivo
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <input type="file" class="form-control" accept=".txt"
+               (change)="seleccionarArchivo($event)">
+        <small class="text-muted">Solo archivos .txt con codificación UTF-8</small>
+      </div>
+      @if (archivo) {
+        <div class="alert alert-info py-2">
+          <i class="bi bi-file-check me-2"></i>
+          Archivo seleccionado: <strong>{{ archivo.name }}</strong>
+          ({{ (archivo.size / 1024).toFixed(1) }} KB)
+        </div>
+      }
+      <div class="d-flex gap-2">
+        <button class="btn btn-warning" (click)="cargar()" [disabled]="cargando || !archivo">
+          @if (cargando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="bi bi-upload me-1"></i>Procesar Archivo
+        </button>
+        @if (resultado) {
+          <button class="btn btn-outline-secondary" (click)="limpiar()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  @if (resultado) {
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-clipboard-check me-2"></i>Resumen de procesamiento
+      </div>
+      <div class="card-body">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="p-3 bg-success bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Registros exitosos</small>
+              <strong class="text-success fs-3">{{ resultado.exitosos }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-danger bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Errores encontrados</small>
+              <strong class="text-danger fs-3">{{ resultado.errores_count }}</strong>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-primary bg-opacity-10 rounded text-center">
+              <small class="text-muted d-block">Total procesado</small>
+              <strong class="text-primary fs-3">
+                {{ resultado.exitosos + resultado.errores_count }}
+              </strong>
+            </div>
+          </div>
+        </div>
+
+        @if (resultado.errores && resultado.errores.length > 0) {
+          <h6 class="fw-semibold text-danger mb-2">
+            <i class="bi bi-exclamation-triangle me-2"></i>Detalle de errores
+          </h6>
+          <div class="bg-light rounded p-3" style="max-height: 300px; overflow-y: auto;">
+            @for (e of resultado.errores; track $index) {
+              <div class="d-flex align-items-start mb-1">
+                <i class="bi bi-x-circle text-danger me-2 mt-1"></i>
+                <small>{{ e }}</small>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="alert alert-success py-2">
+            <i class="bi bi-check-circle me-2"></i>
+            ¡Archivo procesado sin errores!
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

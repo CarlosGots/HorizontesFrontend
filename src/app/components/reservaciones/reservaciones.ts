@@ -40,12 +40,10 @@ export class Reservaciones implements OnInit {
     private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    this.cargar();
-    this.paqueteService.listarActivos
-      ? this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo))
-      : this.paqueteService.listar().subscribe(p => this.paquetes = p);
-  }
+ngOnInit() {
+  this.cargar();
+  this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo));
+}
 
   cargar() {
     const obs = this.filtroDia
