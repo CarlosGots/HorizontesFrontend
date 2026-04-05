@@ -18,4 +18,11 @@ export class PagoService {
   registrar(pago: any): Observable<any> {
     return this.http.post(this.url, pago);
   }
+
+  descargarComprobante(reservacionId: number): void {
+    window.open(
+      `http://localhost:8080/HorizontesBackend/api/pagos?comprobante=${reservacionId}`,
+      '_blank'
+    );
+  }
 }

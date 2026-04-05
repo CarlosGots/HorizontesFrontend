@@ -1,0 +1,13 @@
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+router-outlet + * {
+  flex: 1;
+}
+
+.footer {
+  border-top: 1px solid rgba(255,255,255,0.1);
+}

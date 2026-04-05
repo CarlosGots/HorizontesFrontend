@@ -105,6 +105,11 @@ export class Pagos implements OnInit {
     });
   }
 
+  descargarComprobante() {
+    if (!this.reservacion) return;
+    this.pagoService.descargarComprobante(this.reservacion.id);
+  }
+
   getMetodoNombre(id: number): string {
     return this.metodos.find(m => m.id === id)?.nombre || '—';
   }
