@@ -1,1 +1,113 @@
-<p>destinos works!</p>
+<div class="container-fluid py-4 px-4">
+
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">
+        <i class="bi bi-geo-alt-fill text-info me-2"></i>Destinos Turísticos
+      </h2>
+      <p class="text-muted mb-0">Administrá los destinos disponibles</p>
+    </div>
+    <button class="btn btn-primary" (click)="nuevo()">
+      <i class="bi bi-plus-lg me-1"></i>Nuevo Destino
+    </button>
+  </div>
+
+  <!-- Mensajes -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible">
+      <i class="bi bi-check-circle me-2"></i>{{ mensaje }}
+      <button type="button" class="btn-close" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      <button type="button" class="btn-close" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Formulario -->
+  @if (mostrarFormulario) {
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-pencil me-2"></i>{{ editando ? 'Editar Destino' : 'Nuevo Destino' }}
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" [(ngModel)]="form.nombre" placeholder="Ej: Cancún">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">País *</label>
+            <input type="text" class="form-control" [(ngModel)]="form.pais" placeholder="Ej: México">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Clima</label>
+            <input type="text" class="form-control" [(ngModel)]="form.clima" placeholder="Ej: Tropical, mejor época: Diciembre-Abril">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">URL de imagen</label>
+            <input type="text" class="form-control" [(ngModel)]="form.imagenUrl" placeholder="https://...">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="form.descripcion"
+                      placeholder="Descripción del destino..."></textarea>
+          </div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-primary" (click)="guardar()" [disabled]="cargando">
+            @if (cargando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <i class="bi bi-save me-1"></i>Guardar
+          </button>
+          <button class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Tabla -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Nombre</th>
+            <th>País</th>
+            <th>Clima</th>
+            <th>Descripción</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (destinos.length === 0) {
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                <i class="bi bi-inbox me-2"></i>No hay destinos registrados
+              </td>
+            </tr>
+          }
+          @for (d of destinos; track d.id) {
+            <tr>
+              <td class="fw-semibold">{{ d.nombre }}</td>
+              <td><i class="bi bi-flag me-1"></i>{{ d.pais }}</td>
+              <td>{{ d.clima || '—' }}</td>
+              <td>{{ d.descripcion | slice:0:60 }}{{ d.descripcion?.length > 60 ? '...' : '' }}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(d)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="eliminar(d.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

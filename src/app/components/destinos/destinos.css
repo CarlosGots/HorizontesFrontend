@@ -1,0 +1,11 @@
+.table-hover tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.btn-outline-primary, .btn-outline-danger {
+    transition: transform 0.15s ease;
+}
+
+.btn-outline-primary:hover, .btn-outline-danger:hover {
+    transform: scale(1.1);
+}

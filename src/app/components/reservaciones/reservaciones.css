@@ -1,0 +1,8 @@
+.table-hover tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.btn-outline-info:hover {
+    transform: scale(1.1);
+    transition: transform 0.15s ease;
+}
