@@ -23,7 +23,7 @@ export class Cancelaciones {
     private cancelacionService: CancelacionService,
     private reservacionService: ReservacionService
   ) {}
-
+/** Busca una reservación por número para procesarle la cancelación */
   buscarReservacion() {
     if (!this.busquedaNumero) return;
     this.reservacion = null;
@@ -41,7 +41,10 @@ export class Cancelaciones {
       }
     });
   }
-
+/** 
+ * Procesa la cancelación verificando el estado y los días de anticipación.
+ * El porcentaje de reembolso se calcula automáticamente en el backend.
+ */
   procesarCancelacion() {
     if (!this.reservacion) return;
     if (!confirm(`¿Estás seguro de cancelar la reservación ${this.reservacion.numero}?`)) return;
@@ -60,7 +63,7 @@ export class Cancelaciones {
       }
     });
   }
-
+/** Retorna el color del badge según el estado de la reservación */
   getColorEstado(estado: string): string {
     switch(estado) {
       case 'CONFIRMADA': return 'success';
@@ -70,7 +73,7 @@ export class Cancelaciones {
       default: return 'secondary';
     }
   }
-
+/** Limpia el formulario para iniciar una nueva consulta */ 
   limpiar() {
     this.reservacion = null;
     this.resultado = null;
