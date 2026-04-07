@@ -115,10 +115,16 @@
         }
 
         @if (reservacion.estado === 'CONFIRMADA') {
-          <div class="alert alert-success py-2">
-            <i class="bi bi-check-circle me-2"></i>Esta reservación ya está completamente pagada.
-          </div>
-        }
+  <div class="alert alert-success py-2 d-flex justify-content-between align-items-center">
+    <span>
+      <i class="bi bi-check-circle me-2"></i>
+      Esta reservación ya está completamente pagada.
+    </span>
+    <button class="btn btn-sm btn-success" (click)="descargarComprobante()">
+      <i class="bi bi-file-pdf me-1"></i>Descargar Comprobante PDF
+    </button>
+  </div>
+}
 
         <!-- Historial de pagos -->
         @if (pagos.length > 0) {

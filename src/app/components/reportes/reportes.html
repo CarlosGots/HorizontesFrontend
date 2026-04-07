@@ -14,10 +14,10 @@
     </div>
   }
 
-  <!-- Filtros de fecha -->
+  <!-- Filtros -->
   <div class="card shadow-sm mb-4 border-0">
     <div class="card-header bg-white fw-semibold">
-      <i class="bi bi-funnel me-2"></i>Filtros
+      <i class="bi bi-funnel me-2"></i>Filtros de fecha
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -42,21 +42,21 @@
   <!-- Tarjetas de reportes -->
   <div class="row g-3 mb-4">
     @for (r of reportes; track r.id) {
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm reporte-card" (click)="generarReporte(r.id)"
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm reporte-card"
+             (click)="generarReporte(r.id)"
              [class.border-primary]="reporteActual === r.id">
-          <div class="card-body text-center py-4">
+          <div class="card-body text-center py-3">
             <i [class]="'bi ' + r.icono + ' text-' + r.color"
-               style="font-size: 2rem;"></i>
-            <h6 class="mt-2 fw-semibold">{{ r.nombre }}</h6>
-            <small class="text-muted">Clic para generar</small>
+               style="font-size: 1.8rem;"></i>
+            <h6 class="mt-2 fw-semibold mb-0">{{ r.nombre }}</h6>
           </div>
         </div>
       </div>
     }
   </div>
 
-  <!-- Resultados -->
+  <!-- Cargando -->
   @if (cargando) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary"></div>
@@ -64,22 +64,47 @@
     </div>
   }
 
-  @if (!cargando && datos.length > 0) {
+  <!-- Resultado -->
+  @if (!cargando && datos !== null) {
     <div class="card shadow-sm border-0">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <span class="fw-semibold">
-          <i class="bi bi-table me-2"></i>
-          {{ reporteActual === 'ventas' ? 'Reporte de Ventas' : 'Reporte de Cancelaciones' }}
-          — {{ datos.length }} registros
-        </span>
-        <button class="btn btn-sm btn-outline-danger" (click)="exportarPdf()">
-          <i class="bi bi-file-pdf me-1"></i>Exportar PDF
-        </button>
+      <span class="fw-semibold">
+  <i class="bi bi-table me-2"></i>Resultados
+</span>
+        @if (reporteActual === 'ventas' || reporteActual === 'cancelaciones') {
+          <button class="btn btn-sm btn-outline-danger" (click)="exportarPdf()">
+            <i class="bi bi-file-pdf me-1"></i>Exportar PDF
+          </button>
+        }
       </div>
-      <div class="card-body p-0">
+      <div class="card-body">
 
-        <!-- Tabla ventas -->
-        @if (reporteActual === 'ventas') {
+        <!-- Ganancias -->
+        @if (reporteActual === 'ganancias') {
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-3 bg-success bg-opacity-10 rounded text-center">
+                <small class="text-muted d-block">Ganancias brutas</small>
+                <strong class="text-success fs-4">Q. {{ datos.gananciasBrutas | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-danger bg-opacity-10 rounded text-center">
+                <small class="text-muted d-block">Total reembolsos</small>
+                <strong class="text-danger fs-4">Q. {{ datos.totalReembolsos | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-primary bg-opacity-10 rounded text-center">
+                <small class="text-muted d-block">Ganancia neta</small>
+                <strong class="text-primary fs-4">Q. {{ datos.gananciaNeta | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Ventas -->
+        @if (reporteActual === 'ventas' && esLista()) {
           <table class="table table-hover mb-0">
             <thead class="table-dark">
               <tr>
@@ -99,25 +124,15 @@
                   <td>{{ r.agenteNombre }}</td>
                   <td>{{ r.fechaViaje }}</td>
                   <td>Q. {{ r.costoTotal | number:'1.2-2' }}</td>
-                  <td>
-                    <span [class]="'badge bg-' + getColorEstado(r.estado)">{{ r.estado }}</span>
-                  </td>
+                  <td><span [class]="'badge bg-' + getColorEstado(r.estado)">{{ r.estado }}</span></td>
                 </tr>
               }
             </tbody>
-            <tfoot class="table-light">
-              <tr>
-                <td colspan="4" class="text-end fw-bold">Total:</td>
-                <td colspan="2" class="fw-bold text-success">
-                  Q. {{ getTotalVentas() | number:'1.2-2' }}
-                </td>
-              </tr>
-            </tfoot>
           </table>
         }
 
-        <!-- Tabla cancelaciones -->
-        @if (reporteActual === 'cancelaciones') {
+        <!-- Cancelaciones -->
+        @if (reporteActual === 'cancelaciones' && esLista()) {
           <table class="table table-hover mb-0">
             <thead class="table-dark">
               <tr>
@@ -137,14 +152,88 @@
                 </tr>
               }
             </tbody>
-            <tfoot class="table-light">
+          </table>
+        }
+
+        <!-- Agente ventas y ganancias -->
+        @if ((reporteActual === 'agente-ventas' || reporteActual === 'agente-ganancias') && datos.agentes) {
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
               <tr>
-                <td colspan="3" class="text-end fw-bold">Total reembolsado:</td>
-                <td class="fw-bold text-danger">
-                  Q. {{ getTotalReembolsos() | number:'1.2-2' }}
-                </td>
+                <th>Agente</th>
+                @if (reporteActual === 'agente-ventas') {
+                  <th>Total reservaciones</th>
+                  <th>Monto total</th>
+                }
+                @if (reporteActual === 'agente-ganancias') {
+                  <th>Ganancia total</th>
+                }
               </tr>
-            </tfoot>
+            </thead>
+            <tbody>
+              @for (a of datos.agentes; track a.nombre) {
+                <tr>
+                  <td><i class="bi bi-person me-2"></i>{{ a.nombre }}</td>
+                  @if (reporteActual === 'agente-ventas') {
+                    <td>{{ a.totalReservaciones }}</td>
+                    <td>Q. {{ a.montoTotal | number:'1.2-2' }}</td>
+                  }
+                  @if (reporteActual === 'agente-ganancias') {
+                    <td>Q. {{ a.gananciaTotal | number:'1.2-2' }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        <!-- Paquetes por ventas -->
+        @if (reporteActual === 'paquetes-ventas' && esLista()) {
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Paquete</th>
+                <th>Total ventas</th>
+                <th>Monto total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of datos; track p.nombre; let i = $index) {
+                <tr>
+                  <td>
+                    @if (i === 0) {
+                      <span class="badge bg-success me-2">Más vendido</span>
+                    }
+                    @if (i === datos.length - 1 && datos.length > 1) {
+                      <span class="badge bg-danger me-2">Menos vendido</span>
+                    }
+                    {{ p.nombre }}
+                  </td>
+                  <td>{{ p.totalVentas }}</td>
+                  <td>Q. {{ p.montoTotal | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        <!-- Ocupación por destino -->
+        @if (reporteActual === 'ocupacion-destino' && esLista()) {
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Destino</th>
+                <th>Total reservaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of datos; track d.destino) {
+                <tr>
+                  <td><i class="bi bi-geo-alt me-2"></i>{{ d.destino }}</td>
+                  <td>{{ d.totalReservaciones }}</td>
+                </tr>
+              }
+            </tbody>
           </table>
         }
 
@@ -152,7 +241,7 @@
     </div>
   }
 
-  @if (!cargando && datos.length === 0 && reporteActual) {
+  @if (!cargando && datos === null && reporteActual) {
     <div class="text-center py-5 text-muted">
       <i class="bi bi-inbox" style="font-size: 3rem;"></i>
       <p class="mt-2">No hay datos para el período seleccionado</p>

@@ -12,13 +12,31 @@ export class ReporteService {
   constructor(private http: HttpClient) {}
 
   getVentas(inicio?: string, fin?: string): Observable<any[]> {
-    let params = this.buildParams(inicio, fin);
-    return this.http.get<any[]>(`${this.url}/ventas${params}`);
+    return this.http.get<any[]>(`${this.url}/ventas${this.buildParams(inicio, fin)}`);
   }
 
   getCancelaciones(inicio?: string, fin?: string): Observable<any[]> {
-    let params = this.buildParams(inicio, fin);
-    return this.http.get<any[]>(`${this.url}/cancelaciones${params}`);
+    return this.http.get<any[]>(`${this.url}/cancelaciones${this.buildParams(inicio, fin)}`);
+  }
+
+  getGanancias(inicio?: string, fin?: string): Observable<any> {
+    return this.http.get<any>(`${this.url}/ganancias${this.buildParams(inicio, fin)}`);
+  }
+
+  getAgenteVentas(inicio?: string, fin?: string): Observable<any> {
+    return this.http.get<any>(`${this.url}/agente-ventas${this.buildParams(inicio, fin)}`);
+  }
+
+  getAgenteGanancias(inicio?: string, fin?: string): Observable<any> {
+    return this.http.get<any>(`${this.url}/agente-ganancias${this.buildParams(inicio, fin)}`);
+  }
+
+  getPaquetesVentas(inicio?: string, fin?: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/paquetes-ventas${this.buildParams(inicio, fin)}`);
+  }
+
+  getOcupacionDestino(inicio?: string, fin?: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/ocupacion-destino${this.buildParams(inicio, fin)}`);
   }
 
   exportarPdf(tipo: string, inicio?: string, fin?: string): void {
