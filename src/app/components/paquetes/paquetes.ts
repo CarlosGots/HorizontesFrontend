@@ -137,4 +137,15 @@ export class Paquetes implements OnInit {
     this.mostrarFormulario = false;
     this.error = '';
   }
+  
+  /** Calcula el porcentaje de ocupacion de un paquete */
+getPorcentajeOcupacion(paquete: any): number {
+  if (!paquete.capacidad) return 0;
+  return Math.round((paquete.ocupacion || 0) / paquete.capacidad * 100);
+}
+
+/** Verifica si el paquete tiene alta demanda (mas del 80%) */
+esAltaDemanda(paquete: any): boolean {
+  return this.getPorcentajeOcupacion(paquete) >= 80;
+}
 }

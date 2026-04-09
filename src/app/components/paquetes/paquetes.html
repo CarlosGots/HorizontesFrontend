@@ -166,7 +166,14 @@
           }
           @for (p of paquetes; track p.id) {
             <tr>
-              <td class="fw-semibold">{{ p.nombre }}</td>
+              <td class="fw-semibold">
+  {{ p.nombre }}
+  @if (esAltaDemanda(p)) {
+    <span class="badge bg-warning text-dark ms-2">
+      <i class="bi bi-fire me-1"></i>Alta demanda
+    </span>
+  }
+</td>
               <td>{{ p.destinoNombre }}</td>
               <td>{{ p.duracion }} días</td>
               <td>Q. {{ p.precioVenta | number:'1.2-2' }}</td>

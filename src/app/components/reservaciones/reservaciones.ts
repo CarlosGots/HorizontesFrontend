@@ -44,7 +44,7 @@ ngOnInit() {
   this.cargar();
   this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo));
 }
-
+//** Carga todas las reservaciones o las del día según el filtro activo */
   cargar() {
     const obs = this.filtroDia
       ? this.reservacionService.listarDelDia()
@@ -54,7 +54,7 @@ ngOnInit() {
       error: () => this.error = 'Error al cargar reservaciones'
     });
   }
-
+//** Activa o desactiva el filtro de reservaciones del día */
   toggleFiltroDia() {
     this.filtroDia = !this.filtroDia;
     this.cargar();
@@ -69,7 +69,7 @@ ngOnInit() {
     this.mensaje = '';
     this.error = '';
   }
-
+/** Busca un cliente por DPI para agregarlo como pasajero */
   buscarPasajero() {
     if (!this.busquedaDpi) return;
     this.clienteService.buscarPorDpi(this.busquedaDpi).subscribe({
@@ -95,7 +95,7 @@ ngOnInit() {
   getPaqueteSeleccionado(): any {
     return this.paquetes.find(p => p.id == this.form.paqueteId);
   }
-
+/** Calcula el costo total multiplicando precio del paquete por pasajeros */
   getCostoTotal(): number {
     const paquete = this.getPaqueteSeleccionado();
     if (!paquete) return 0;
@@ -111,7 +111,7 @@ ngOnInit() {
       }
     });
   }
-
+/** Guarda la reservación con todos sus pasajeros en el backend */
   guardar() {
     if (!this.form.paqueteId || !this.form.fechaViaje || this.pasajeros.length === 0) {
       this.error = 'Paquete, fecha de viaje y al menos un pasajero son obligatorios';
@@ -156,6 +156,26 @@ ngOnInit() {
       default: return 'secondary';
     }
   }
+  /** Marca una reservacion como COMPLETADA cuando el viaje ya se realizo */
+completarReservacion(r: any) {
+  if (!confirm(`Marcar la reservacion ${r.numero} como COMPLETADA?`)) return;
+  this.reservacionService.actualizarEstado(r.id, 'COMPLETADA').subscribe({
+    next: () => {
+      this.mensaje = `Reservacion ${r.numero} marcada como COMPLETADA`;
+      this.cargar();
+    },
+    error: () => this.error = 'Error al actualizar el estado'
+  });
+}
+
+/** Verifica si la fecha de viaje ya paso para mostrar el boton COMPLETAR */
+fechaYaPaso(fechaViaje: string): boolean {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fecha = new Date(fechaViaje);
+  fecha.setHours(0, 0, 0, 0);
+  return fecha <= hoy;
+}
 }
 
 

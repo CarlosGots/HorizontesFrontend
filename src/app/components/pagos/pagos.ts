@@ -38,7 +38,7 @@ export class Pagos implements OnInit {
   ) {}
 
   ngOnInit() {}
-
+/** Busca una reservación por su número (ej: RES-00001) */
   buscarReservacion() {
     if (!this.busquedaNumero) return;
     this.reservacion = null;
@@ -59,23 +59,23 @@ export class Pagos implements OnInit {
       }
     });
   }
-
+/** Carga el historial de pagos de una reservación */
   cargarPagos(reservacionId: number) {
     this.pagoService.listarPorReservacion(reservacionId).subscribe({
       next: (data) => this.pagos = data,
       error: () => this.error = 'Error al cargar pagos'
     });
   }
-
+/** Calcula el total de pagos ya registrados */
   getTotalPagado(): number {
     return this.pagos.reduce((sum, p) => sum + p.monto, 0);
   }
-
+/** Calcula el monto que aún falta por pagar */
   getPendiente(): number {
     if (!this.reservacion) return 0;
     return this.reservacion.costoTotal - this.getTotalPagado();
   }
-
+/** Registra un pago y verifica si la reservación queda confirmada */
   registrarPago() {
     if (!this.form.reservacionId || this.form.monto <= 0) {
       this.error = 'Ingresá un monto válido';
@@ -104,7 +104,7 @@ export class Pagos implements OnInit {
       }
     });
   }
-
+/** Abre el comprobante de pago en PDF en una nueva pestaña */
   descargarComprobante() {
     if (!this.reservacion) return;
     this.pagoService.descargarComprobante(this.reservacion.id);

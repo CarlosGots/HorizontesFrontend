@@ -184,11 +184,17 @@
                 <span [class]="'badge bg-' + getColorEstado(r.estado)">{{ r.estado }}</span>
               </td>
               <td class="text-center">
-                <button class="btn btn-sm btn-outline-info" (click)="verDetalle(r)"
-                        title="Ver detalle">
-                  <i class="bi bi-eye"></i>
-                </button>
-              </td>
+  <button class="btn btn-sm btn-outline-info me-1" (click)="verDetalle(r)"
+          title="Ver detalle">
+    <i class="bi bi-eye"></i>
+  </button>
+  @if (r.estado === 'CONFIRMADA' && fechaYaPaso(r.fechaViaje)) {
+    <button class="btn btn-sm btn-outline-success" (click)="completarReservacion(r)"
+            title="Marcar como completada">
+      <i class="bi bi-check2-circle"></i>
+    </button>
+  }
+</td>
             </tr>
           }
         </tbody>
