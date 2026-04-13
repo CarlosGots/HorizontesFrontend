@@ -140,6 +140,28 @@
       </div>
     </div>
   }
+  <!-- Filtro por destino -->
+<div class="card shadow-sm mb-4 border-0">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Filtrar por destino</label>
+        <select class="form-select" [(ngModel)]="filtroDestinoId"
+                (change)="filtrarPorDestino()">
+          <option [value]="0">Todos los destinos</option>
+          @for (d of destinos; track d.id) {
+            <option [value]="d.id">{{ d.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-secondary" (click)="filtroDestinoId=0; filtrarPorDestino()">
+          <i class="bi bi-x me-1"></i>Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Tabla de paquetes -->
   <div class="card shadow-sm border-0">
@@ -164,7 +186,7 @@
               </td>
             </tr>
           }
-          @for (p of paquetes; track p.id) {
+          @for (p of paquetesFiltrados; track p.id) {
             <tr>
               <td class="fw-semibold">
   {{ p.nombre }}

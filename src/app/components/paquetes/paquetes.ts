@@ -14,6 +14,7 @@ import { ProveedorService } from '../../services/proveedor';
 export class Paquetes implements OnInit {
 
   paquetes: any[] = [];
+  paquetesFiltrados: any[] = [];
   destinos: any[] = [];
   proveedores: any[] = [];
   mostrarFormulario = false;
@@ -21,6 +22,7 @@ export class Paquetes implements OnInit {
   cargando = false;
   mensaje = '';
   error = '';
+  filtroDestinoId = 0;
 
   form: any = {
     id: null, nombre: '', destinoId: null, duracion: 1,
@@ -43,7 +45,10 @@ export class Paquetes implements OnInit {
 
   cargar() {
     this.paqueteService.listar().subscribe({
-      next: (data) => this.paquetes = data,
+      next: (data) => {
+        this.paquetes = data;
+        this.paquetesFiltrados = data;
+      },
       error: () => this.error = 'Error al cargar paquetes'
     });
   }
@@ -137,15 +142,26 @@ export class Paquetes implements OnInit {
     this.mostrarFormulario = false;
     this.error = '';
   }
-  
-  /** Calcula el porcentaje de ocupacion de un paquete */
-getPorcentajeOcupacion(paquete: any): number {
-  if (!paquete.capacidad) return 0;
-  return Math.round((paquete.ocupacion || 0) / paquete.capacidad * 100);
-}
 
-/** Verifica si el paquete tiene alta demanda (mas del 80%) */
-esAltaDemanda(paquete: any): boolean {
-  return this.getPorcentajeOcupacion(paquete) >= 80;
-}
+  /** Filtra los paquetes por destino seleccionado */
+  filtrarPorDestino() {
+    if (this.filtroDestinoId === 0) {
+      this.paquetesFiltrados = this.paquetes;
+    } else {
+      this.paquetesFiltrados = this.paquetes.filter(
+        p => p.destinoId == this.filtroDestinoId
+      );
+    }
+  }
+
+  /** Calcula el porcentaje de ocupacion de un paquete */
+  getPorcentajeOcupacion(paquete: any): number {
+    if (!paquete.capacidad) return 0;
+    return Math.round((paquete.ocupacion || 0) / paquete.capacidad * 100);
+  }
+
+  /** Verifica si el paquete tiene alta demanda (mas del 80%) */
+  esAltaDemanda(paquete: any): boolean {
+    return this.getPorcentajeOcupacion(paquete) >= 80;
+  }
 }
