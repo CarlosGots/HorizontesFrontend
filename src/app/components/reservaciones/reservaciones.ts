@@ -18,6 +18,7 @@ export class Reservaciones implements OnInit {
   reservaciones: any[] = [];
   mostrarFormulario = false;
   mostrarDetalle = false;
+  mostrarFormularioCliente = false;
   cargando = false;
   mensaje = '';
   error = '';
@@ -30,6 +31,12 @@ export class Reservaciones implements OnInit {
   paquetes: any[] = [];
   pasajeros: any[] = [];
   busquedaDpi = '';
+
+  // Formulario para registrar cliente nuevo desde reservaciones
+  nuevoCliente: any = {
+    dpi: '', nombre: '', fechaNacimiento: '',
+    telefono: '', email: '', nacionalidad: ''
+  };
 
   form: any = {
     paqueteId: null,
@@ -45,12 +52,13 @@ export class Reservaciones implements OnInit {
     private destinoService: DestinoService
   ) {}
 
-ngOnInit() {
-  this.cargar();
-  this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo));
-  this.destinoService.listar().subscribe(d => this.destinos = d);
-}
-//** Carga todas las reservaciones o las del día según el filtro activo */
+  ngOnInit() {
+    this.cargar();
+    this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo));
+    this.destinoService.listar().subscribe(d => this.destinos = d);
+  }
+
+  /** Carga todas las reservaciones o las del día según el filtro activo */
   cargar() {
     const obs = this.filtroDia
       ? this.reservacionService.listarDelDia()
@@ -60,7 +68,8 @@ ngOnInit() {
       error: () => this.error = 'Error al cargar reservaciones'
     });
   }
-//** Activa o desactiva el filtro de reservaciones del día */
+
+  /** Activa o desactiva el filtro de reservaciones del día */
   toggleFiltroDia() {
     this.filtroDia = !this.filtroDia;
     this.cargar();
@@ -72,10 +81,12 @@ ngOnInit() {
     this.busquedaDpi = '';
     this.mostrarFormulario = true;
     this.mostrarDetalle = false;
+    this.mostrarFormularioCliente = false;
     this.mensaje = '';
     this.error = '';
   }
-/** Busca un cliente por DPI para agregarlo como pasajero */
+
+  /** Busca un cliente por DPI — si no existe ofrece registrarlo */
   buscarPasajero() {
     if (!this.busquedaDpi) return;
     this.clienteService.buscarPorDpi(this.busquedaDpi).subscribe({
@@ -88,9 +99,49 @@ ngOnInit() {
         this.form.pasajeros = this.pasajeros;
         this.busquedaDpi = '';
         this.error = '';
+        this.mostrarFormularioCliente = false;
       },
-      error: () => this.error = 'Cliente no encontrado con ese DPI'
+      error: () => {
+        // Cliente no existe — mostramos formulario para registrarlo
+        this.mostrarFormularioCliente = true;
+        this.nuevoCliente = {
+          dpi: this.busquedaDpi, nombre: '', fechaNacimiento: '',
+          telefono: '', email: '', nacionalidad: ''
+        };
+        this.error = '';
+      }
     });
+  }
+
+  /** Registra el cliente nuevo y lo agrega como pasajero automáticamente */
+  registrarYAgregarCliente() {
+    if (!this.nuevoCliente.nombre || !this.nuevoCliente.fechaNacimiento) {
+      this.error = 'Nombre y fecha de nacimiento son obligatorios';
+      return;
+    }
+    this.clienteService.crear(this.nuevoCliente).subscribe({
+      next: () => {
+        // Cliente registrado, ahora lo buscamos y agregamos como pasajero
+        this.clienteService.buscarPorDpi(this.nuevoCliente.dpi).subscribe({
+          next: (c) => {
+            this.pasajeros.push(c);
+            this.form.pasajeros = this.pasajeros;
+            this.mostrarFormularioCliente = false;
+            this.busquedaDpi = '';
+            this.error = '';
+            this.mensaje = `Cliente ${c.nombre} registrado y agregado como pasajero`;
+          }
+        });
+      },
+      error: () => this.error = 'Error al registrar el cliente'
+    });
+  }
+
+  /** Cancela el registro del nuevo cliente */
+  cancelarNuevoCliente() {
+    this.mostrarFormularioCliente = false;
+    this.busquedaDpi = '';
+    this.error = '';
   }
 
   eliminarPasajero(index: number) {
@@ -101,7 +152,8 @@ ngOnInit() {
   getPaqueteSeleccionado(): any {
     return this.paquetes.find(p => p.id == this.form.paqueteId);
   }
-/** Calcula el costo total multiplicando precio del paquete por pasajeros */
+
+  /** Calcula el costo total multiplicando precio del paquete por pasajeros */
   getCostoTotal(): number {
     const paquete = this.getPaqueteSeleccionado();
     if (!paquete) return 0;
@@ -117,7 +169,8 @@ ngOnInit() {
       }
     });
   }
-/** Guarda la reservación con todos sus pasajeros en el backend */
+
+  /** Guarda la reservación con todos sus pasajeros en el backend */
   guardar() {
     if (!this.form.paqueteId || !this.form.fechaViaje || this.pasajeros.length === 0) {
       this.error = 'Paquete, fecha de viaje y al menos un pasajero son obligatorios';
@@ -150,6 +203,7 @@ ngOnInit() {
   cancelar() {
     this.mostrarFormulario = false;
     this.mostrarDetalle = false;
+    this.mostrarFormularioCliente = false;
     this.error = '';
   }
 
@@ -162,42 +216,43 @@ ngOnInit() {
       default: return 'secondary';
     }
   }
+
   /** Marca una reservacion como COMPLETADA cuando el viaje ya se realizo */
-completarReservacion(r: any) {
-  if (!confirm(`Marcar la reservacion ${r.numero} como COMPLETADA?`)) return;
-  this.reservacionService.actualizarEstado(r.id, 'COMPLETADA').subscribe({
-    next: () => {
-      this.mensaje = `Reservacion ${r.numero} marcada como COMPLETADA`;
-      this.cargar();
-    },
-    error: () => this.error = 'Error al actualizar el estado'
-  });
-}
+  completarReservacion(r: any) {
+    if (!confirm(`Marcar la reservacion ${r.numero} como COMPLETADA?`)) return;
+    this.reservacionService.actualizarEstado(r.id, 'COMPLETADA').subscribe({
+      next: () => {
+        this.mensaje = `Reservacion ${r.numero} marcada como COMPLETADA`;
+        this.cargar();
+      },
+      error: () => this.error = 'Error al actualizar el estado'
+    });
+  }
 
-/** Verifica si la fecha de viaje ya paso para mostrar el boton COMPLETAR */
-fechaYaPaso(fechaViaje: string): boolean {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const fecha = new Date(fechaViaje);
-  fecha.setHours(0, 0, 0, 0);
-  return fecha <= hoy;
-}
-/** Busca reservaciones por fecha de viaje y/o destino */
-buscarPorFechaYDestino() {
-  const fecha = this.filtroFecha || undefined;
-  const destino = this.filtroDestino || undefined;
-  this.reservacionService.buscarPorFechaYDestino(fecha, destino).subscribe({
-    next: (data) => this.reservaciones = data,
-    error: () => this.error = 'Error al buscar reservaciones'
-  });
-}
+  /** Verifica si la fecha de viaje ya paso para mostrar el boton COMPLETAR */
+  fechaYaPaso(fechaViaje: string): boolean {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fecha = new Date(fechaViaje);
+    fecha.setHours(0, 0, 0, 0);
+    return fecha <= hoy;
+  }
 
-/** Limpia los filtros y carga todas las reservaciones */
-limpiarFiltros() {
-  this.filtroFecha = '';
-  this.filtroDestino = 0;
-  this.cargar();
-}
-}
+  /** Busca reservaciones por fecha de viaje y/o destino */
+  buscarPorFechaYDestino() {
+    const fecha = this.filtroFecha || undefined;
+    const destino = this.filtroDestino || undefined;
+    this.reservacionService.buscarPorFechaYDestino(fecha, destino).subscribe({
+      next: (data) => this.reservaciones = data,
+      error: () => this.error = 'Error al buscar reservaciones'
+    });
+  }
 
+  /** Limpia los filtros y carga todas las reservaciones */
+  limpiarFiltros() {
+    this.filtroFecha = '';
+    this.filtroDestino = 0;
+    this.cargar();
+  }
+}
 
