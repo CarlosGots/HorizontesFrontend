@@ -1,12 +1,22 @@
-html {
+/* Variables de colores de la paleta */
+:root {
+  --color-oscuro: #031926;
+  --color-primario: #468189;
+  --color-secundario: #77ACA2;
+  --color-claro: #9DBEBB;
+ --color-fondo: #F5F7F8;
+}
+
+html, body {
   height: 100%;
+  margin: 0;
+  background-color: #F5F7F8;
 }
 
 body {
-  min-height: 100%;
   display: flex;
   flex-direction: column;
-  margin: 0;
+  min-height: 100vh;
 }
 
 app-root {
@@ -18,4 +28,90 @@ app-root {
 .footer {
   border-top: 1px solid rgba(255,255,255,0.1);
   margin-top: auto;
+}
+
+/* Navbar con color oscuro de la paleta */
+.navbar {
+  background-color: var(--color-oscuro) !important;
+}
+
+/* Botones primarios */
+.btn-primary {
+  background-color: var(--color-primario) !important;
+  border-color: var(--color-primario) !important;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secundario) !important;
+  border-color: var(--color-secundario) !important;
+}
+
+/* Botones outline primario */
+.btn-outline-primary {
+  color: var(--color-primario) !important;
+  border-color: var(--color-primario) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primario) !important;
+  color: white !important;
+}
+
+/* Encabezados de tablas */
+.table-dark {
+  background-color: var(--color-oscuro) !important;
+}
+
+.table-dark th {
+  background-color: var(--color-oscuro) !important;
+  color: white !important;
+}
+
+/* Cards con fondo blanco para no saturar */
+.card {
+  background-color: white !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Badge primario */
+.badge.bg-primary {
+  background-color: var(--color-primario) !important;
+}
+
+/* Inputs focus con color de la paleta */
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-secundario) !important;
+  box-shadow: 0 0 0 0.2rem rgba(119, 172, 162, 0.25) !important;
+}
+
+/* Card header con acento suave */
+.card-header {
+  border-bottom: 2px solid var(--color-claro) !important;
+}
+
+/* Hover en tarjetas del dashboard */
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(3, 25, 38, 0.12) !important;
+}
+
+/* Links del navbar */
+.navbar-nav .nav-link {
+  color: rgba(255,255,255,0.85) !important;
+  transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--color-claro) !important;
+}
+
+/* Dropdown del navbar */
+.dropdown-menu {
+  border: 1px solid var(--color-claro) !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-fondo) !important;
+  color: var(--color-oscuro) !important;
 }
