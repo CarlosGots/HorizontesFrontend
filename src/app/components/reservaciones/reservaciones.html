@@ -30,6 +30,37 @@
       <button type="button" class="btn-close" (click)="error=''"></button>
     </div>
   }
+  <!-- Busqueda por fecha y destino -->
+<div class="card shadow-sm mb-4 border-0">
+  <div class="card-header bg-white fw-semibold">
+    <i class="bi bi-search me-2"></i>Buscar por fecha y destino
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Fecha de viaje</label>
+        <input type="date" class="form-control" [(ngModel)]="filtroFecha">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Destino</label>
+        <select class="form-select" [(ngModel)]="filtroDestino">
+          <option [value]="0">Todos los destinos</option>
+          @for (d of destinos; track d.id) {
+            <option [value]="d.id">{{ d.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4 d-flex align-items-end gap-2">
+        <button class="btn btn-primary" (click)="buscarPorFechaYDestino()">
+          <i class="bi bi-search me-1"></i>Buscar
+        </button>
+        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+          <i class="bi bi-x me-1"></i>Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Formulario nueva reservación -->
   @if (mostrarFormulario) {

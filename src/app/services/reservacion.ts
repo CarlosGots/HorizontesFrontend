@@ -44,4 +44,11 @@ export class ReservacionService {
   actualizarEstado(id: number, estado: string): Observable<any> {
     return this.http.put(this.url, { id, estado });
   }
+  /** Busca reservaciones por fecha de viaje y/o destino */
+buscarPorFechaYDestino(fecha?: string, destinoId?: number): Observable<any[]> {
+  const params = [];
+  if (fecha) params.push(`fecha=${fecha}`);
+  if (destinoId) params.push(`destino=${destinoId}`);
+  return this.http.get<any[]>(`${this.url}?${params.join('&')}`);
+}
 }

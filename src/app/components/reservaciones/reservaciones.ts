@@ -5,6 +5,7 @@ import { ReservacionService } from '../../services/reservacion';
 import { PaqueteService } from '../../services/paquete';
 import { ClienteService } from '../../services/cliente';
 import { AuthService } from '../../services/auth';
+import { DestinoService } from '../../services/destino';
 
 @Component({
   selector: 'app-reservaciones',
@@ -21,6 +22,9 @@ export class Reservaciones implements OnInit {
   mensaje = '';
   error = '';
   filtroDia = false;
+  filtroFecha = '';
+  filtroDestino = 0;
+  destinos: any[] = [];
   reservacionDetalle: any = null;
 
   paquetes: any[] = [];
@@ -37,12 +41,14 @@ export class Reservaciones implements OnInit {
     private reservacionService: ReservacionService,
     private paqueteService: PaqueteService,
     private clienteService: ClienteService,
-    private authService: AuthService
+    private authService: AuthService,
+    private destinoService: DestinoService
   ) {}
 
 ngOnInit() {
   this.cargar();
   this.paqueteService.listar().subscribe(p => this.paquetes = p.filter((x: any) => x.activo));
+  this.destinoService.listar().subscribe(d => this.destinos = d);
 }
 //** Carga todas las reservaciones o las del día según el filtro activo */
   cargar() {
@@ -175,6 +181,22 @@ fechaYaPaso(fechaViaje: string): boolean {
   const fecha = new Date(fechaViaje);
   fecha.setHours(0, 0, 0, 0);
   return fecha <= hoy;
+}
+/** Busca reservaciones por fecha de viaje y/o destino */
+buscarPorFechaYDestino() {
+  const fecha = this.filtroFecha || undefined;
+  const destino = this.filtroDestino || undefined;
+  this.reservacionService.buscarPorFechaYDestino(fecha, destino).subscribe({
+    next: (data) => this.reservaciones = data,
+    error: () => this.error = 'Error al buscar reservaciones'
+  });
+}
+
+/** Limpia los filtros y carga todas las reservaciones */
+limpiarFiltros() {
+  this.filtroFecha = '';
+  this.filtroDestino = 0;
+  this.cargar();
 }
 }
 

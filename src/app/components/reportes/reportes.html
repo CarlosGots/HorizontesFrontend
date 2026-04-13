@@ -71,11 +71,9 @@
       <span class="fw-semibold">
   <i class="bi bi-table me-2"></i>Resultados
 </span>
-        @if (reporteActual === 'ventas' || reporteActual === 'cancelaciones') {
-          <button class="btn btn-sm btn-outline-danger" (click)="exportarPdf()">
-            <i class="bi bi-file-pdf me-1"></i>Exportar PDF
-          </button>
-        }
+       <button class="btn btn-sm btn-outline-danger" (click)="exportarPdf()">
+  <i class="bi bi-file-pdf me-1"></i>Exportar PDF
+</button>
       </div>
       <div class="card-body">
 
